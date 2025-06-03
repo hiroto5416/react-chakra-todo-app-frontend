@@ -8,6 +8,7 @@ const apiClient = axios.create({
     "Content-Type": "application/json",
   },
   timeout: 10000, // 10秒でタイムアウト
+  withCredentials: true, // CORSのクレデンシャルを有効化
 });
 
 // レスポンスインターセプターでエラーハンドリング
