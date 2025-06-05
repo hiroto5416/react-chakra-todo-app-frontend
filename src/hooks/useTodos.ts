@@ -1,3 +1,16 @@
+/**
+ * useTodos.ts
+ *
+ * Todoアプリケーションのカスタムフック
+ * TodoのCRUD操作と状態管理を提供します：
+ * - Todoの取得（一覧、個別）
+ * - Todoの作成
+ * - Todoの更新
+ * - Todoの削除
+ * - ローディング状態の管理
+ * - エラー状態の管理
+ */
+
 import { useState, useEffect, useCallback } from "react";
 import {
   getTodos,
@@ -12,6 +25,9 @@ import type {
   TodoStats,
 } from "../types/todo";
 
+/**
+ * useTodosフックの戻り値の型定義
+ */
 interface UseTodosReturn {
   todos: Todo[];
   loading: boolean;
@@ -23,6 +39,11 @@ interface UseTodosReturn {
   deleteTodo: (id: number) => Promise<boolean>;
 }
 
+/**
+ * Todoアプリケーションのカスタムフック
+ *
+ * @returns {UseTodosReturn} Todo関連の状態と操作関数
+ */
 export const useTodos = (): UseTodosReturn => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -35,7 +56,10 @@ export const useTodos = (): UseTodosReturn => {
     remaining: todos.filter((todo) => !todo.completed).length,
   };
 
-  // 全てのTodoを取得
+  /**
+   * Todo一覧を取得する関数
+   * エラーハンドリングを含む
+   */
   const fetchTodos = useCallback(async (): Promise<void> => {
     setLoading(true);
     setError(null);
@@ -50,7 +74,15 @@ export const useTodos = (): UseTodosReturn => {
     }
   }, []);
 
-  // 新しいTodoを作成
+  // コンポーネントマウント時にTodo一覧を取得
+  useEffect(() => {
+    fetchTodos();
+  }, [fetchTodos]);
+
+  /**
+   * 新規Todoを作成する関数
+   * @param {CreateTodoDto} todo - 作成するTodoのデータ
+   */
   const createTodo = useCallback(
     async (createTodoDto: CreateTodoDto): Promise<boolean> => {
       if (!createTodoDto.title.trim()) {
@@ -80,7 +112,12 @@ export const useTodos = (): UseTodosReturn => {
     []
   );
 
-  // Todoを更新
+  /**
+   * Todoを更新する関数
+   * @param {number} id - 更新対象のTodoのID
+   * @param {UpdateTodoDto} todo - 更新するデータ
+   * @returns {Promise<boolean>} 更新の成功/失敗
+   */
   const updateTodo = useCallback(
     async (id: number, updateTodoDto: UpdateTodoDto): Promise<boolean> => {
       setLoading(true);
@@ -104,7 +141,10 @@ export const useTodos = (): UseTodosReturn => {
     []
   );
 
-  // Todoを削除
+  /**
+   * Todoを削除する関数
+   * @param {number} id - 削除対象のTodoのID
+   */
   const deleteTodo = useCallback(async (id: number): Promise<boolean> => {
     setLoading(true);
     setError(null);
@@ -122,11 +162,6 @@ export const useTodos = (): UseTodosReturn => {
       setLoading(false);
     }
   }, []);
-
-  // 初回読み込み
-  useEffect(() => {
-    fetchTodos();
-  }, [fetchTodos]);
 
   return {
     todos,
